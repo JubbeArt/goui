@@ -1,0 +1,45 @@
+json ui?
+
+read and send json on stdin / stdout
+
+{
+	"styles": [
+		"",
+		""
+	],
+	"ui": {
+		"type": "text",
+		"text": "Hello World"
+	},
+	"events": [
+		"key",
+		"text",
+		"resize"
+	],
+	"window": {
+		"title": "Hello World",
+		"icon": "/path/to/icon.png",
+		"initial_width": 123,
+		"initial_height": 321,
+		"fixed_size": false
+	}
+}
+
+
+{
+	"type": "button",
+	"events": ["click", "hover"]
+	"id": "button1",
+	"children": [
+		{
+			"type": "text",
+			"text": "Xd"
+		},
+		{
+
+		}
+	]
+}
+
+
+<- {"event": "click", "id": "button1"}

@@ -1,0 +1,16 @@
+Requirements
+	Multiline font rendering
+	Image rendering
+	Overflow handling
+
+Tried but bad
+	gi - 1 billion dependencies ? already does what i wanna do ?
+	h8gi/canvas - uses pixel & gg
+	https://github.com/tfriedel6/canvas - multiline text rendering has to be done manually
+	https://github.com/llgcode/draw2d - cant draw images, no support for multiline text?
+	go-cairo - incomplete binding
+	Skia - hard to integrate with glfw? doesnt even compile
+
+Potential
+	nanovgo - font rendering is broken ("- _") but otherwise really good
+	maybe do a new port of nanovg
