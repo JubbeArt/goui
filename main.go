@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-	goui.Debug(true)
 	items := []string{"Board /b/ - Random", "Board /g/ - Technology", "Board /pol/ - Politically incorrect"}
 	index := 2
 

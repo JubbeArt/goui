@@ -1,6 +1,8 @@
 package goui
 
 import (
+	"errors"
+	"fmt"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -19,6 +21,9 @@ type UI interface {
 	Text(text string) *Handle
 	Box(children func()) *Handle
 	Rerender()
+	Title(title string)
+	Size() (int, int)
+	Quit()
 
 	OnKey(func(ev KeyEvent))
 	OnText(func(char rune))
@@ -35,6 +40,7 @@ type UI interface {
 
 // argument for interface over struct: user cant create interface themselves
 type gui struct {
+	window     *glfw.Window
 	renderFunc func(ui UI)
 
 	root       *widgetContainer
@@ -70,8 +76,9 @@ func Render(render func(ui UI)) error {
 	defer ctx.Delete()
 
 	g := &gui{
+		window:      window,
 		renderFunc:  render,
-		queueRender: make(chan struct{}, 20),
+		queueRender: make(chan struct{}, 100),
 		ctx:         ctx,
 	}
 
@@ -152,8 +159,14 @@ func Render(render func(ui UI)) error {
 
 	for _, font := range fonts {
 		path := filepath.Join("fonts", font+".ttf")
-		data, _ := ioutil.ReadFile(path)
-		ctx.CreateFontFromMemory(font, data, 0)
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("could not load font: %v", err)
+		}
+		id := ctx.CreateFontFromMemory(font, data, 0)
+		if id == -1 {
+			return errors.New("could not load font")
+		}
 	}
 
 	// queue initial render
@@ -172,8 +185,6 @@ func Render(render func(ui UI)) error {
 		}
 
 		if shouldRender {
-			//fmt.Println("rendering...")
-
 			fbWidth, fbHeight := window.GetFramebufferSize()
 			winWidth, winHeight := window.GetSize()
 			pixelRatio := float32(fbWidth) / float32(winWidth)
@@ -245,6 +256,7 @@ func Render(render func(ui UI)) error {
 			g.Rerender()
 		}
 
+		// TODO
 		time.Sleep(10 * time.Millisecond)
 
 		window.SwapBuffers()
@@ -307,6 +319,10 @@ func (g *gui) addWidget(w widget) *Handle {
 	return handle
 }
 
+func (g *gui) Rerender() {
+	g.queueRender <- struct{}{}
+}
+
 func (g *gui) OnKey(callback func(ev KeyEvent))                 { g.keyCb = callback }
 func (g *gui) OnText(callback func(char rune))                  { g.textCb = callback }
 func (g *gui) OnClick(callback func(ev ClickEvent))             { g.clickCb = callback }
@@ -317,6 +333,6 @@ func (g *gui) OnMaximizeChange(callback func(maximized bool))   { g.maximizeCb =
 func (g *gui) OnMouseMove(callback func(ev MouseMoveEvent))     { g.mouseMoveCb = callback }
 func (g *gui) OnScroll(callback func(ev ScrollEvent))           { g.scrollCb = callback }
 
-func (g *gui) Rerender() {
-	g.queueRender <- struct{}{}
-}
+func (g *gui) Quit()              { g.window.SetShouldClose(true) }
+func (g *gui) Title(title string) { g.window.SetTitle(title) }
+func (g *gui) Size() (int, int)   { return g.window.GetSize() }

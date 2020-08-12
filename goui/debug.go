@@ -2,14 +2,15 @@ package goui
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ttacon/chalk"
 )
 
 var (
-	debug    = false
-	warnings = []string{}
-	errors   = []string{}
+	debug          = false
+	warningMessage = []string{}
+	errorMessages  = []string{}
 )
 
 func Debug(on bool) {
@@ -23,24 +24,22 @@ func debugRender(mainUI *gui, debugUI UI) {
 const logPrefix = "[GOUI]"
 
 func logInfo(str string) {
-	if !debug {
-		return
-	}
 	fmt.Println(logPrefix + " " + str)
 }
 
-func logWarning(str string) {
-	if !debug {
-		return
-	}
+func logWarning(msg ...interface{}) {
+	str := addSpaces(msg...)
 	fmt.Println(chalk.Yellow.Color(logPrefix + " Warning: " + str))
-	warnings = append(warnings, str)
+	warningMessage = append(warningMessage, str)
 }
 
-func logError(str string) {
-	if !debug {
-		return
-	}
+func logError(msg ...interface{}) {
+	str := addSpaces(msg...)
 	fmt.Println(chalk.Red.Color(logPrefix + " Error: " + str))
-	errors = append(errors, str)
+	errorMessages = append(errorMessages, str)
+}
+
+func addSpaces(msg ...interface{}) string {
+	str := fmt.Sprintln(msg)
+	return strings.TrimSuffix(str, "\n")
 }
